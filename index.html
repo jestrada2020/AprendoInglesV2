@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendizaje de Inglés Interactivo</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .phrase-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .phrase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .category-button {
+            transition: all 0.3s ease;
+        }
+        
+        .category-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .category-button.active {
+            border-width: 2px;
+            font-weight: bold;
+        }
+        
+        .pronunciation-visual {
+            height: 30px;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .pronunciation-visual span {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            background-color: #4F46E5;
+            animation: wave 1s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% {
+                height: 5px;
+            }
+            50% {
+                height: 25px;
+            }
+        }
+        
+        .favorite-btn.active {
+            color: #fbbf24;
+        }
+        
+        /* Modo oscuro */
+        .dark {
+            background-color: #1F2937;
+            color: #F9FAFB;
+        }
+        
+        .dark .phrase-card {
+            background-color: #374151;
+            color: #F9FAFB;
+        }
+        
+        .dark .header {
+            background-color: #111827;
+        }
+        
+        .letter-card {
+            transition: transform 0.3s ease;
+        }
+        
+        .letter-card:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Animaciones para tarjetas */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .phrase-content {
+            transition: all 0.3s ease;
+        }
+        
+        .flashcard-container {
+            perspective: 1000px;
+        }
+        
+        .flashcard {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+            height: 100%;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        
+        .image-container {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 0.5rem 0.5rem 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+        }
+        
+        .theme-greetings { border-color: #10B981; }
+        .theme-travel { border-color: #3B82F6; }
+        .theme-food { border-color: #F59E0B; }
+        .theme-work { border-color: #EF4444; }
+        .theme-shopping { border-color: #8B5CF6; }
+        .theme-health { border-color: #EC4899; }
+        .theme-everyday { border-color: #6366F1; }
+        .theme-emotions { border-color: #F97316; }
+        .theme-questions { border-color: #14B8A6; }
+        .theme-emergencies { border-color: #DC2626; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="header bg-white shadow-md rounded-lg p-4 mb-6">
+            <div class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-bold text-indigo-600">
+                        <i class="fas fa-language"></i>
+                    </span>
+                    <h1 class="text-xl md:text-2xl font-bold">Aprendizaje de Inglés Interactivo</h1>
+                </div>
+                <div class="flex items-center space-x-2 mt-2 md:mt-0">
+                    <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Buscar frases..." class="border border-gray-300 rounded-lg py-2 px-4 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <span class="absolute right-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Técnica -->
+            <div class="mt-4 mb-2 p-3 bg-indigo-50 rounded-lg">
+                <h4 class="font-semibold text-indigo-700">Técnica Powell Janullus:</h4>
+                <p class="text-indigo-600">SUJETO-RAZÓN-ACCIÓN-COMPLEMENTO</p>
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="mb-6 bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="grid grid-cols-2 md:grid-cols-4 border-b">
+                <button class="tab-button py-3 px-4 font-medium hover:bg-indigo-50 focus:outline-none active" data-tab="phrases">
+                    <i class="fas fa-comment-dots mr-2"></i>Frases
+                </button>
+                <button class="tab-button py-3 px-4 font-medium hover:bg-indigo-50 focus:outline-none" data-tab="categories">
+                    <i class="fas fa-th-large mr-2"></i>Categorías
+                </button>
+                <button class="tab-button py-3 px-4 font-medium hover:bg-indigo-50 focus:outline-none" data-tab="alphabet">
+                    <i class="fas fa-font mr-2"></i>Alfabeto
+                </button>
+                <button class="tab-button py-3 px-4 font-medium hover:bg-indigo-50 focus:outline-none" data-tab="flashcards">
+                    <i class="fas fa-clone mr-2"></i>Tarjetas
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tab Contents -->
+        <div class="tab-content active" id="phrases-tab">
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex flex-wrap justify-between mb-4">
+                    <div>
+                        <span class="text-sm text-gray-500" id="currentPage">Mostrando 1-10 de 800 frases</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="prevPage" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button id="nextPage" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="phrasesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Cards will be generated here -->
+                </div>
+                
+                <div class="flex justify-center mt-6 space-x-1" id="pagination">
+                    <!-- Pagination will be generated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="categories-tab">
+            <div class="mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-green-500 hover:bg-green-50" data-category="greetings">
+                        <i class="fas fa-hand-wave text-2xl mb-2 text-green-500"></i>
+                        <span>Saludos</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-blue-500 hover:bg-blue-50" data-category="travel">
+                        <i class="fas fa-plane text-2xl mb-2 text-blue-500"></i>
+                        <span>Viajes</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-yellow-500 hover:bg-yellow-50" data-category="food">
+                        <i class="fas fa-utensils text-2xl mb-2 text-yellow-500"></i>
+                        <span>Comida</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-red-500 hover:bg-red-50" data-category="work">
+                        <i class="fas fa-briefcase text-2xl mb-2 text-red-500"></i>
+                        <span>Trabajo</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-purple-500 hover:bg-purple-50" data-category="shopping">
+                        <i class="fas fa-shopping-bag text-2xl mb-2 text-purple-500"></i>
+                        <span>Compras</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-pink-500 hover:bg-pink-50" data-category="health">
+                        <i class="fas fa-heartbeat text-2xl mb-2 text-pink-500"></i>
+                        <span>Salud</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-indigo-500 hover:bg-indigo-50" data-category="everyday">
+                        <i class="fas fa-home text-2xl mb-2 text-indigo-500"></i>
+                        <span>Cotidiano</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-orange-500 hover:bg-orange-50" data-category="emotions">
+                        <i class="fas fa-smile text-2xl mb-2 text-orange-500"></i>
+                        <span>Emociones</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-teal-500 hover:bg-teal-50" data-category="questions">
+                        <i class="fas fa-question-circle text-2xl mb-2 text-teal-500"></i>
+                        <span>Preguntas</span>
+                    </button>
+                    <button class="category-button flex flex-col items-center justify-center p-3 bg-white rounded-lg shadow-sm border-2 border-red-600 hover:bg-red-50" data-category="emergencies">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2 text-red-600"></i>
+                        <span>Emergencias</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="text-lg font-semibold mb-4" id="categoryTitle">Todas las categorías</h3>
+                <div id="categoryPhrasesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Category cards will be generated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="alphabet-tab">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="text-xl font-semibold mb-6 text-center">Alfabeto Inglés</h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-13 gap-3 mb-8">
+                    <!-- Alphabet cards will be generated here -->
+                </div>
+                
+                <div id="selectedLetter" class="hidden mt-8 p-4 rounded-lg bg-indigo-50">
+                    <div class="text-center">
+                        <span class="text-6xl font-bold text-indigo-600" id="bigLetter">A</span>
+                        <div class="mt-4 text-2xl" id="letterPronunciation">ei</div>
+                        <div class="pronunciation-visual mt-6" id="pronunciationVisual">
+                            <!-- Pronunciation visualization will be generated here -->
+                        </div>
+                        <button class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none" id="pronounceLetterBtn">
+                            <i class="fas fa-volume-up mr-2"></i>Escuchar pronunciación
+                        </button>
+                    </div>
+                    <div class="mt-8">
+                        <h4 class="font-semibold mb-2">Ejemplos de palabras:</h4>
+                        <div id="letterExamples" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <!-- Examples will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="flashcards-tab">
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex flex-wrap justify-between mb-6">
+                    <h3 class="text-lg font-semibold">Tarjetas de memoria</h3>
+                    <div class="flex space-x-3">
+                        <select id="flashcardCategorySelect" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">Todas las categorías</option>
+                            <option value="greetings">Saludos</option>
+                            <option value="travel">Viajes</option>
+                            <option value="food">Comida</option>
+                            <option value="work">Trabajo</option>
+                            <option value="shopping">Compras</option>
+                            <option value="health">Salud</option>
+                            <option value="everyday">Cotidiano</option>
+                            <option value="emotions">Emociones</option>
+                            <option value="questions">Preguntas</option>
+                            <option value="emergencies">Emergencias</option>
+                        </select>
+                        <button id="prevFlashcard" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button id="nextFlashcard" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flashcard-container h-80 md:h-96">
+                    <div class="flashcard cursor-pointer" id="currentFlashcard">
+                        <div class="flashcard-front bg-white rounded-lg shadow-md h-full flex flex-col">
+                            <div class="image-container" id="flashcardImage">
+                                <i class="fas fa-image text-4xl text-gray-300"></i>
+                            </div>
+                            <div class="p-4 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2" id="flashcardEnglish">I can swim</h3>
+                                    <p class="text-gray-600 italic mb-2" id="flashcardPronunciation">ai ken suim</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-500">Haz clic para ver la traducción</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flashcard-back bg-indigo-100 rounded-lg shadow-md h-full flex flex-col justify-center items-center p-6">
+                            <h3 class="text-2xl font-bold mb-4 text-center" id="flashcardSpanish">Puedo nadar</h3>
+                            <button class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none" id="pronounceFlashcardBtn">
+                                <i class="fas fa-volume-up mr-2"></i>Escuchar pronunciación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <span id="flashcardCounter" class="text-sm text-gray-500">Tarjeta 1 de 800</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Modal -->
+        <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-1/2 lg:w-1/3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Tu progreso</h3>
+                    <button id="closeProgressModal" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <div class="relative pt-1">
+                        <div class="flex mb-2 items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                    Progreso
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-semibold inline-block text-indigo-600" id="progressPercent">
+                                    0%
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                            <div id="progressBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600" id="learnedCount">0</div>
+                        <div class="text-sm text-green-800">Frases aprendidas</div>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600" id="favoriteCount">0</div>
+                        <div class="text-sm text-yellow-800">Frases favoritas</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button id="resetProgressBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none">
+                        Reiniciar progreso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de frases en inglés
+        const phrasesData = [
+            // Saludos (greetings)
+            { id: 1, english: "Hello", pronunciation: "Jelou", spanish: "Hola", category: "greetings", keywords: ["hello", "greeting", "saludo"] },
+            { id: 2, english: "Good morning", pronunciation: "Guud morning", spanish: "Buenos días", category: "greetings", keywords: ["morning", "greeting", "saludo", "dia"] },
+            { id: 3, english: "Good afternoon", pronunciation: "Guud after-nuun", spanish: "Buenas tardes", category: "greetings", keywords: ["afternoon", "greeting", "saludo", "tarde"] },
+            { id: 4, english: "Good night", pronunciation: "Guud nait", spanish: "Buenas noches", category: "greetings", keywords: ["night", "greeting", "saludo", "noche"] },
+            { id: 5, english: "How are you?", pronunciation: "Jau ar iu?", spanish: "¿Cómo estás?", category: "greetings", keywords: ["how", "greeting", "saludo", "como"] },
+            { id: 6, english: "I'm fine, thank you", pronunciation: "Aim fain, zenk iu", spanish: "Estoy bien, gracias", category: "greetings", keywords: ["fine", "thank", "bien", "gracias"] },
+            { id: 7, english: "Nice to meet you", pronunciation: "Nais tu mit iu", spanish: "Encantado de conocerte", category: "greetings", keywords: ["meet", "nice", "conocer", "encantado"] },
+            { id: 8, english: "Goodbye", pronunciation: "Guud bai", spanish: "Adiós", category: "greetings", keywords: ["goodbye", "bye", "adios"] },
+            { id: 9, english: "See you later", pronunciation: "Si iu leiter", spanish: "Hasta luego", category: "greetings", keywords: ["see", "later", "luego"] },
+            { id: 10, english: "See you tomorrow", pronunciation: "Si iu tumorou", spanish: "Te veo mañana", category: "greetings", keywords: ["tomorrow", "see", "mañana"] },
+            
+            // Básicas (everyday)
+            { id: 11, english: "I can", pronunciation: "ai ken", spanish: "Puedo", category: "everyday", keywords: ["can", "poder"] },
+            { id: 12, english: "Can you", pronunciation: "ken iu", spanish: "Puedes", category: "everyday", keywords: ["can", "poder"] },
+            { id: 13, english: "I'm going to", pronunciation: "aim going tu", spanish: "Voy a", category: "everyday", keywords: ["going", "ir"] },
+            { id: 14, english: "Are you going to", pronunciation: "ar iu going tu", spanish: "Vas a", category: "everyday", keywords: ["going", "ir"] },
+            { id: 15, english: "I have", pronunciation: "I jaf", spanish: "Tengo", category: "everyday", keywords: ["have", "tener"] },
+            { id: 16, english: "Do you have", pronunciation: "du iu jaf", spanish: "Tienes", category: "everyday", keywords: ["have", "tener"] },
+            { id: 17, english: "I like to", pronunciation: "ai laik tu", spanish: "Me gusta", category: "everyday", keywords: ["like", "gustar"] },
+            { id: 18, english: "I want to", pronunciation: "ai want tu", spanish: "Quiero", category: "everyday", keywords: ["want", "querer"] },
+            { id: 19, english: "Do you want", pronunciation: "du iu want", spanish: "Quieres", category: "everyday", keywords: ["want", "querer"] },
+            { id: 20, english: "I would like to", pronunciation: "ai wud laik tu", spanish: "Me gustaría", category: "everyday", keywords: ["would", "like", "gustar"] },
+            
+            // Preguntas (questions)
+            { id: 21, english: "What is your name?", pronunciation: "uat is yor neim?", spanish: "¿Cómo te llamas?", category: "questions", keywords: ["name", "what", "nombre", "como"] },
+            { id: 22, english: "Where do you live?", pronunciation: "uer du yu liv?", spanish: "¿Dónde vives?", category: "questions", keywords: ["where", "live", "donde", "vivir"] },
+            { id: 23, english: "How old are you?", pronunciation: "jau old ar iu?", spanish: "¿Cuántos años tienes?", category: "questions", keywords: ["old", "age", "edad", "años"] },
+            { id: 24, english: "What time is it?", pronunciation: "uat taim is it?", spanish: "¿Qué hora es?", category: "questions", keywords: ["time", "what", "hora"] },
+            { id: 25, english: "Why?", pronunciation: "uai?", spanish: "¿Por qué?", category: "questions", keywords: ["why", "porque"] },
+            { id: 26, english: "When?", pronunciation: "uen?", spanish: "¿Cuándo?", category: "questions", keywords: ["when", "cuando"] },
+            { id: 27, english: "Where is?", pronunciation: "uer is?", spanish: "¿Dónde está?", category: "questions", keywords: ["where", "donde"] },
+            { id: 28, english: "How?", pronunciation: "jau?", spanish: "¿Cómo?", category: "questions", keywords: ["how", "como"] },
+            { id: 29, english: "What?", pronunciation: "uat?", spanish: "¿Qué?", category: "questions", keywords: ["what", "que"] },
+            { id: 30, english: "Who?", pronunciation: "ju?", spanish: "¿Quién?", category: "questions", keywords: ["who", "quien"] },
+            
+            // Viajes (travel)
+            { id: 31, english: "Where is the bathroom?", pronunciation: "uer is de bafroom?", spanish: "¿Dónde está el baño?", category: "travel", keywords: ["bathroom", "where", "baño", "donde"] },
+            { id: 32, english: "Where is the hotel?", pronunciation: "uer is de joutel?", spanish: "¿Dónde está el hotel?", category: "travel", keywords: ["hotel", "where", "donde"] },
+            { id: 33, english: "How do I get to...?", pronunciation: "jau du ai get tu...?", spanish: "¿Cómo llego a...?", category: "travel", keywords: ["get", "how", "llegar", "como"] },
+            { id: 34, english: "I'm lost", pronunciation: "aim lost", spanish: "Estoy perdido", category: "travel", keywords: ["lost", "perdido"] },
+            { id: 35, english: "I need a taxi", pronunciation: "ai niid a taksi", spanish: "Necesito un taxi", category: "travel", keywords: ["taxi", "need", "necesitar"] },
+            { id: 36, english: "How much does it cost?", pronunciation: "jau mach das it kost?", spanish: "¿Cuánto cuesta?", category: "travel", keywords: ["cost", "how", "cuanto", "cuesta"] },
+            { id: 37, english: "Can you help me?", pronunciation: "ken iu jelp mi?", spanish: "¿Puedes ayudarme?", category: "travel", keywords: ["help", "can", "ayudar", "poder"] },
+            { id: 38, english: "I don't understand", pronunciation: "ai dont anderstend", spanish: "No entiendo", category: "travel", keywords: ["understand", "don't", "entender", "no"] },
+            { id: 39, english: "Do you speak Spanish?", pronunciation: "du iu spik spanish?", spanish: "¿Hablas español?", category: "travel", keywords: ["speak", "spanish", "hablar", "español"] },
+            { id: 40, english: "Where is the nearest hospital?", pronunciation: "uer is de nierest jospital?", spanish: "¿Dónde está el hospital más cercano?", category: "travel", keywords: ["hospital", "nearest", "hospital", "cercano"] },
+            
+            // Comida (food)
+            { id: 41, english: "I'm hungry", pronunciation: "aim jangri", spanish: "Tengo hambre", category: "food", keywords: ["hungry", "hambre"] },
+            { id: 42, english: "I'm thirsty", pronunciation: "aim zersti", spanish: "Tengo sed", category: "food", keywords: ["thirsty", "sed"] },
+            { id: 43, english: "The menu, please", pronunciation: "de meniu, pliis", spanish: "El menú, por favor", category: "food", keywords: ["menu", "menu"] },
+            { id: 44, english: "I would like to order", pronunciation: "ai wud laik tu order", spanish: "Me gustaría ordenar", category: "food", keywords: ["order", "ordenar", "pedir"] },
+            { id: 45, english: "What do you recommend?", pronunciation: "uat du iu rekomend?", spanish: "¿Qué recomiendas?", category: "food", keywords: ["recommend", "what", "recomendar", "que"] },
+            { id: 46, english: "I am vegetarian", pronunciation: "ai am veyetarian", spanish: "Soy vegetariano", category: "food", keywords: ["vegetarian", "vegetariano"] },
+            { id: 47, english: "I am allergic to...", pronunciation: "ai am aléryik tu...", spanish: "Soy alérgico a...", category: "food", keywords: ["allergic", "alergico"] },
+            { id: 48, english: "The check, please", pronunciation: "de chek, pliis", spanish: "La cuenta, por favor", category: "food", keywords: ["check", "cuenta"] },
+            { id: 49, english: "It was delicious", pronunciation: "it wos delíshios", spanish: "Estaba delicioso", category: "food", keywords: ["delicious", "delicioso"] },
+            { id: 50, english: "I want to eat sushi", pronunciation: "ai want tu it sushi", spanish: "Quiero comer sushi", category: "food", keywords: ["sushi", "eat", "want", "comer", "querer"] },
+            
+            // Trabajo (work)
+            { id: 51, english: "I am looking for a job", pronunciation: "ai am luking for ei yob", spanish: "Estoy buscando empleo", category: "work", keywords: ["job", "looking", "trabajo", "buscar"] },
+            { id: 52, english: "I need work", pronunciation: "ai niid tu uork", spanish: "Necesito trabajar", category: "work", keywords: ["work", "need", "trabajo", "necesitar"] },
+            { id: 53, english: "What is your profession?", pronunciation: "uat is ior profeshon?", spanish: "¿Cuál es tu profesión?", category: "work", keywords: ["profession", "what", "profesion", "cual"] },
+            { id: 54, english: "I have experience in", pronunciation: "ai jav expirians in", spanish: "Tengo experiencia en", category: "work", keywords: ["experience", "have", "experiencia", "tener"] },
+            { id: 55, english: "I have a meeting", pronunciation: "ai jav a mirin", spanish: "Tengo una reunión", category: "work", keywords: ["meeting", "have", "reunion", "tener"] },
+            { id: 56, english: "How much will I make?", pronunciation: "jau mach uil ai meik?", spanish: "¿Cuánto ganaré?", category: "work", keywords: ["how", "much", "make", "cuanto", "ganar"] },
+            { id: 57, english: "I can work overtime", pronunciation: "ai can uork over-taim", spanish: "Puedo trabajar tiempo extra", category: "work", keywords: ["overtime", "work", "can", "extra", "trabajar", "poder"] },
+            { id: 58, english: "I am very busy", pronunciation: "ai am veri bisi", spanish: "Estoy muy ocupado", category: "work", keywords: ["busy", "very", "ocupado", "muy"] },
+            { id: 59, english: "Can I help you?", pronunciation: "ken ai jelp iu?", spanish: "¿Puedo ayudarte?", category: "work", keywords: ["help", "can", "ayudar", "poder"] },
+            { id: 60, english: "I need more time", pronunciation: "ai niid mor taim", spanish: "Necesito más tiempo", category: "work", keywords: ["time", "more", "need", "tiempo", "mas", "necesitar"] },
+            
+            // Emergencias (emergencies)
+            { id: 61, english: "Help!", pronunciation: "jelp!", spanish: "¡Socorro!", category: "emergencies", keywords: ["help", "socorro", "ayuda"] },
+            { id: 62, english: "Call an ambulance!", pronunciation: "kol an ambiulans!", spanish: "¡Llama una ambulancia!", category: "emergencies", keywords: ["ambulance", "call", "ambulancia", "llamar"] },
+            { id: 63, english: "Call the police", pronunciation: "kol di polis", spanish: "Llama a la policía", category: "emergencies", keywords: ["police", "call", "policia", "llamar"] },
+            { id: 64, english: "Fire!", pronunciation: "faiar!", spanish: "¡Fuego!", category: "emergencies", keywords: ["fire", "fuego"] },
+            { id: 65, english: "Danger!", pronunciation: "danyer!", spanish: "¡Peligro!", category: "emergencies", keywords: ["danger", "peligro"] },
+            { id: 66, english: "Warning!", pronunciation: "uarning!", spanish: "¡Advertencia!", category: "emergencies", keywords: ["warning", "advertencia"] },
+            { id: 67, english: "I had an accident", pronunciation: "ai jad an aksidént", spanish: "Tuve un accidente", category: "emergencies", keywords: ["accident", "had", "accidente", "tener"] },
+            { id: 68, english: "I need a doctor", pronunciation: "ai niid a doktor", spanish: "Necesito un médico", category: "emergencies", keywords: ["doctor", "need", "medico", "necesitar"] },
+            { id: 69, english: "I don't feel well", pronunciation: "ai dont fiil uel", spanish: "No me siento bien", category: "emergencies", keywords: ["feel", "well", "don't", "sentir", "bien", "no"] },
+            { id: 70, english: "I have been robbed", pronunciation: "ai jav bin robd", spanish: "Me han robado", category: "emergencies", keywords: ["robbed", "have", "robar"] },
+            
+            // Compras (shopping)
+            { id: 71, english: "How much is this?", pronunciation: "jau mach is dis?", spanish: "¿Cuánto cuesta esto?", category: "shopping", keywords: ["how", "much", "cuanto", "cuesta"] },
+            { id: 72, english: "It's too expensive", pronunciation: "its tu expénsiv", spanish: "Es demasiado caro", category: "shopping", keywords: ["expensive", "too", "caro", "demasiado"] },
+            { id: 73, english: "Do you have it in another color?", pronunciation: "du iu jav it in anóder kolor?", spanish: "¿Lo tiene en otro color?", category: "shopping", keywords: ["color", "another", "have", "color", "otro", "tener"] },
+            { id: 74, english: "I'm just looking", pronunciation: "aim yast luking", spanish: "Solo estoy mirando", category: "shopping", keywords: ["looking", "just", "mirando", "solo"] },
+            { id: 75, english: "I want to buy this", pronunciation: "ai want tu bai dis", spanish: "Quiero comprar esto", category: "shopping", keywords: ["buy", "want", "comprar", "querer"] },
+            { id: 76, english: "Where is the fitting room?", pronunciation: "uer is de fiting rum?", spanish: "¿Dónde está el probador?", category: "shopping", keywords: ["fitting", "room", "where", "probador", "donde"] },
+            { id: 77, english: "Do you accept credit cards?", pronunciation: "du iu aksept kredit kards?", spanish: "¿Aceptan tarjetas de crédito?", category: "shopping", keywords: ["credit", "cards", "accept", "tarjetas", "credito", "aceptar"] },
+            { id: 78, english: "Can I return this?", pronunciation: "ken ai riturn dis?", spanish: "¿Puedo devolver esto?", category: "shopping", keywords: ["return", "can", "devolver", "poder"] },
+            { id: 79, english: "Is there a discount?", pronunciation: "is der a diskaunt?", spanish: "¿Hay algún descuento?", category: "shopping", keywords: ["discount", "descuento"] },
+            { id: 80, english: "I'm going to buy a new bicycle", pronunciation: "aim going tu bai a niu baicicol", spanish: "Voy a comprar una bicicleta nueva", category: "shopping", keywords: ["bicycle", "buy", "going", "bicicleta", "comprar", "ir"] },
+            
+            // Salud (health)
+            { id: 81, english: "I have a headache", pronunciation: "ai jav a jedeik", spanish: "Tengo dolor de cabeza", category: "health", keywords: ["headache", "have", "dolor", "cabeza", "tener"] },
+            { id: 82, english: "I have a stomachache", pronunciation: "ai jav a stomakeik", spanish: "Tengo dolor de estómago", category: "health", keywords: ["stomachache", "have", "dolor", "estomago", "tener"] },
+            { id: 83, english: "I need medicine", pronunciation: "ai niid medisin", spanish: "Necesito medicina", category: "health", keywords: ["medicine", "need", "medicina", "necesitar"] },
+            { id: 84, english: "I am allergic to", pronunciation: "ai am aléryik tu", spanish: "Soy alérgico a", category: "health", keywords: ["allergic", "am", "alergico", "ser"] },
+            { id: 85, english: "I feel better", pronunciation: "ai fil berer", spanish: "Me siento mejor", category: "health", keywords: ["better", "feel", "mejor", "sentir"] },
+            { id: 86, english: "I feel sick", pronunciation: "ai fil sik", spanish: "Me siento enfermo", category: "health", keywords: ["sick", "feel", "enfermo", "sentir"] },
+            { id: 87, english: "I broke my arm", pronunciation: "ai brouk mai arm", spanish: "Me rompí el brazo", category: "health", keywords: ["broke", "arm", "romper", "brazo"] },
+            { id: 88, english: "I can't sleep", pronunciation: "ai kant sliip", spanish: "No puedo dormir", category: "health", keywords: ["sleep", "can't", "dormir", "poder", "no"] },
+            { id: 89, english: "I need to rest", pronunciation: "ai niid tu rest", spanish: "Necesito descansar", category: "health", keywords: ["rest", "need", "descansar", "necesitar"] },
+            { id: 90, english: "I'm pregnant", pronunciation: "aim pregnant", spanish: "Estoy embarazada", category: "health", keywords: ["pregnant", "am", "embarazada", "estar"] },
+            
+            // Emociones (emotions)
+            { id: 91, english: "I'm happy", pronunciation: "aim japi", spanish: "Estoy feliz", category: "emotions", keywords: ["happy", "am", "feliz", "estar"] },
+            { id: 92, english: "I'm sad", pronunciation: "aim sad", spanish: "Estoy triste", category: "emotions", keywords: ["sad", "am", "triste", "estar"] },
+            { id: 93, english: "I'm tired", pronunciation: "aim taiard", spanish: "Estoy cansado", category: "emotions", keywords: ["tired", "am", "cansado", "estar"] },
+            { id: 94, english: "I'm excited", pronunciation: "aim exaited", spanish: "Estoy emocionado", category: "emotions", keywords: ["excited", "am", "emocionado", "estar"] },
+            { id: 95, english: "I'm nervous", pronunciation: "aim nervos", spanish: "Estoy nervioso", category: "emotions", keywords: ["nervous", "am", "nervioso", "estar"] },
+            { id: 96, english: "I'm bored", pronunciation: "aim bord", spanish: "Estoy aburrido", category: "emotions", keywords: ["bored", "am", "aburrido", "estar"] },
+            { id: 97, english: "I'm angry", pronunciation: "aim angri", spanish: "Estoy enojado", category: "emotions", keywords: ["angry", "am", "enojado", "estar"] },
+            { id: 98, english: "I'm surprised", pronunciation: "aim sorpraist", spanish: "Estoy sorprendido", category: "emotions", keywords: ["surprised", "am", "sorprendido", "estar"] },
+            { id: 99, english: "I'm scared", pronunciation: "aim skerd", spanish: "Estoy asustado", category: "emotions", keywords: ["scared", "am", "asustado", "estar"] },
+            { id: 100, english: "I love you", pronunciation: "ai lov iu", spanish: "Te quiero", category: "emotions", keywords: ["love", "querer", "amar"] },
+            
+            // Añadir 700 más...
+            // Continuación de frases cotidianas (everyday)
+            { id: 101, english: "I can swim", pronunciation: "ai ken suim", spanish: "Puedo nadar", category: "everyday", keywords: ["swim", "can", "nadar", "poder"] },
+            { id: 102, english: "I can speak Spanish", pronunciation: "ai ken spik spanish", spanish: "Puedo hablar español", category: "everyday", keywords: ["speak", "spanish", "can", "hablar", "español", "poder"] },
+            { id: 103, english: "I can cook", pronunciation: "ai ken kuk", spanish: "Puedo cocinar", category: "everyday", keywords: ["cook", "can", "cocinar", "poder"] },
+            { id: 104, english: "I can play the guitar", pronunciation: "ai ken plei de guitar", spanish: "Puedo tocar la guitarra", category: "everyday", keywords: ["play", "guitar", "can", "tocar", "guitarra", "poder"] },
+            { id: 105, english: "I can help you", pronunciation: "ai ken jelp iu", spanish: "Puedo ayudarte", category: "everyday", keywords: ["help", "can", "ayudar", "poder"] },
+            // ... hasta 800
+        ];
+
+        // Datos del alfabeto
+        const alphabetData = [
+            { letter: "A", pronunciation: "ei", examples: ["Apple", "Ant", "Accident"] },
+            { letter: "B", pronunciation: "bi", examples: ["Ball", "Book", "Beach"] },
+            { letter: "C", pronunciation: "ci", examples: ["Cat", "Car", "City"] },
+            { letter: "D", pronunciation: "di", examples: ["Dog", "Door", "Day"] },
+            { letter: "E", pronunciation: "i", examples: ["Elephant", "Eye", "Eagle"] },
+            { letter: "F", pronunciation: "ef", examples: ["Fish", "Fire", "Food"] },
+            { letter: "G", pronunciation: "yi", examples: ["Girl", "Game", "Green"] },
+            { letter: "H", pronunciation: "eich", examples: ["House", "Hat", "Hand"] },
+            { letter: "I", pronunciation: "ai", examples: ["Ice", "Island", "Idea"] },
+            { letter: "J", pronunciation: "yei", examples: ["Juice", "Jump", "Jacket"] },
+            { letter: "K", pronunciation: "kei", examples: ["King", "Key", "Kitchen"] },
+            { letter: "L", pronunciation: "el", examples: ["Lion", "Lamp", "Lunch"] },
+            { letter: "M", pronunciation: "em", examples: ["Man", "Moon", "Music"] },
+            { letter: "N", pronunciation: "en", examples: ["Night", "Name", "Nose"] },
+            { letter: "O", pronunciation: "ou", examples: ["Orange", "Ocean", "Office"] },
+            { letter: "P", pronunciation: "pi", examples: ["Pizza", "Phone", "Pencil"] },
+            { letter: "Q", pronunciation: "kiu", examples: ["Queen", "Question", "Quick"] },
+            { letter: "R", pronunciation: "ar", examples: ["Rain", "Rock", "River"] },
+            { letter: "S", pronunciation: "es", examples: ["Sun", "Sea", "School"] },
+            { letter: "T", pronunciation: "ti", examples: ["Tree", "Time", "Table"] },
+            { letter: "U", pronunciation: "iu", examples: ["Umbrella", "University", "Up"] },
+            { letter: "V", pronunciation: "vi", examples: ["Vacation", "Voice", "Van"] },
+            { letter: "W", pronunciation: "dobliu", examples: ["Water", "Window", "World"] },
+            { letter: "X", pronunciation: "ex", examples: ["X-ray", "Xylophone", "Xbox"] },
+            { letter: "Y", pronunciation: "uay", examples: ["Yellow", "Year", "Yes"] },
+            { letter: "Z", pronunciation: "zi", examples: ["Zoo", "Zero", "Zebra"] }
+        ];
+
+        // Variables globales
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let filteredPhrases = [...phrasesData];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let learnedPhrases = JSON.parse(localStorage.getItem('learnedPhrases')) || [];
+        let currentFlashcardIndex = 0;
+        let currentFlashcards = [...phrasesData];
+        
+        // Inicialización
+        document.addEventListener("DOMContentLoaded", function() {
+            // Inicializar pestañas
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Inicializar lista de frases
+            renderPhrases();
+            renderPagination();
+            
+            // Inicializar alfabeto
+            renderAlphabet();
+            
+            // Inicializar primera tarjeta
+            renderCurrentFlashcard();
+            
+            // Eventos para navegación de páginas
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPhrases();
+                    renderPagination();
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredPhrases.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPhrases();
+                    renderPagination();
+                }
+            });
+            
+            // Evento de búsqueda
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredPhrases = [...phrasesData];
+                } else {
+                    filteredPhrases = phrasesData.filter(phrase => 
+                        phrase.english.toLowerCase().includes(searchTerm) || 
+                        phrase.spanish.toLowerCase().includes(searchTerm) ||
+                        phrase.pronunciation.toLowerCase().includes(searchTerm) ||
+                        phrase.keywords.some(keyword => keyword.includes(searchTerm))
+                    );
+                }
+                
+                currentPage = 1;
+                renderPhrases();
+                renderPagination();
+            });
+            
+            // Eventos para categorías
+            const categoryButtons = document.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.getAttribute('data-category');
+                    document.getElementById('categoryTitle').textContent = getCategoryName(category);
+                    
+                    const categoryPhrases = phrasesData.filter(phrase => phrase.category === category);
+                    renderCategoryPhrases(categoryPhrases);
+                    
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+            
+            // Eventos para tarjetas de memoria
+            document.getElementById('currentFlashcard').addEventListener('click', () => {
+                document.getElementById('currentFlashcard').classList.toggle('flipped');
+            });
+            
+            document.getElementById('prevFlashcard').addEventListener('click', () => {
+                if (currentFlashcardIndex > 0) {
+                    currentFlashcardIndex--;
+                    renderCurrentFlashcard();
+                    document.getElementById('currentFlashcard').classList.remove('flipped');
+                }
+            });
+            
+            document.getElementById('nextFlashcard').addEventListener('click', () => {
+                if (currentFlashcardIndex < currentFlashcards.length - 1) {
+                    currentFlashcardIndex++;
+                    renderCurrentFlashcard();
+                    document.getElementById('currentFlashcard').classList.remove('flipped');
+                }
+            });
+            
+            document.getElementById('flashcardCategorySelect').addEventListener('change', (e) => {
+                const category = e.target.value;
+                
+                if (category === 'all') {
+                    currentFlashcards = [...phrasesData];
+                } else {
+                    currentFlashcards = phrasesData.filter(phrase => phrase.category === category);
+                }
+                
+                currentFlashcardIndex = 0;
+                renderCurrentFlashcard();
+                document.getElementById('currentFlashcard').classList.remove('flipped');
+            });
+            
+            // Evento para pronunciación
+            document.getElementById('pronounceFlashcardBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                speakText(currentFlashcards[currentFlashcardIndex].english);
+            });
+            
+            // Toggle para modo oscuro
+            document.getElementById('darkModeToggle').addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                localStorage.setItem('darkMode', isDark);
+                
+                const icon = document.getElementById('darkModeToggle').querySelector('i');
+                if (isDark) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // Cargar preferencia de modo oscuro
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark');
+                const icon = document.getElementById('darkModeToggle').querySelector('i');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+        
+        // Funciones principales
+        function renderPhrases() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const phrasesToShow = filteredPhrases.slice(startIndex, endIndex);
+            
+            const phrasesList = document.getElementById('phrasesList');
+            phrasesList.innerHTML = '';
+            
+            phrasesToShow.forEach(phrase => {
+                const card = document.createElement('div');
+                card.className = `phrase-card bg-white rounded-lg shadow-md overflow-hidden animate-fade-in border-l-4 theme-${phrase.category}`;
+                
+                const isFavorite = favorites.includes(phrase.id);
+                const isLearned = learnedPhrases.includes(phrase.id);
+                
+                card.innerHTML = `
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold">${phrase.english}</h3>
+                            <button class="favorite-btn text-gray-400 hover:text-yellow-400 ${isFavorite ? 'active' : ''}" data-id="${phrase.id}">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-600 italic mb-2">${phrase.pronunciation}</p>
+                        <p class="text-gray-800 mb-3">${phrase.spanish}</p>
+                        <div class="flex items-center justify-between mt-3">
+                            <div>
+                                <button class="speak-btn px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none mr-2" data-text="${phrase.english}">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button class="show-image-btn px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none" data-keywords="${phrase.keywords.join(',')}">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                            </div>
+                            <button class="learned-btn px-3 py-1 ${isLearned ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'} rounded-md hover:bg-green-200 focus:outline-none" data-id="${phrase.id}">
+                                ${isLearned ? '<i class="fas fa-check mr-1"></i>Aprendida' : 'Marcar como aprendida'}
+                            </button>
+                        </div>
+                        <div class="image-container mt-3 hidden rounded-md overflow-hidden"></div>
+                    </div>
+                `;
+                
+                phrasesList.appendChild(card);
+                
+                // Agregar eventos a los botones
+                const favoriteBtn = card.querySelector('.favorite-btn');
+                favoriteBtn.addEventListener('click', () => toggleFavorite(phrase.id, favoriteBtn));
+                
+                const speakBtn = card.querySelector('.speak-btn');
+                speakBtn.addEventListener('click', () => speakText(speakBtn.getAttribute('data-text')));
+                
+                const showImageBtn = card.querySelector('.show-image-btn');
+                showImageBtn.addEventListener('click', () => showImage(showImageBtn, card.querySelector('.image-container')));
+                
+                const learnedBtn = card.querySelector('.learned-btn');
+                learnedBtn.addEventListener('click', () => toggleLearned(phrase.id, learnedBtn));
+            });
+            
+            // Actualizar contador de página
+            document.getElementById('currentPage').textContent = `Mostrando ${startIndex + 1}-${Math.min(endIndex, filteredPhrases.length)} de ${filteredPhrases.length} frases`;
+        }
+        
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredPhrases.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            // Si hay más de 7 páginas, mostrar una versión reducida
+            if (totalPages > 7) {
+                // Primeras páginas
+                for (let i = 1; i <= 3; i++) {
+                    addPaginationButton(i);
+                }
+                
+                // Elipsis o página actual
+                if (currentPage > 3 && currentPage < totalPages - 2) {
+                    addPaginationEllipsis();
+                    addPaginationButton(currentPage);
+                    addPaginationEllipsis();
+                } else {
+                    addPaginationEllipsis();
+                }
+                
+                // Últimas páginas
+                for (let i = totalPages - 2; i <= totalPages; i++) {
+                    addPaginationButton(i);
+                }
+            } else {
+                // Mostrar todas las páginas
+                for (let i = 1; i <= totalPages; i++) {
+                    addPaginationButton(i);
+                }
+            }
+            
+            function addPaginationButton(pageNum) {
+                const button = document.createElement('button');
+                button.className = `w-8 h-8 flex items-center justify-center rounded-md ${currentPage === pageNum ? 'bg-indigo-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`;
+                button.textContent = pageNum;
+                button.addEventListener('click', () => {
+                    currentPage = pageNum;
+                    renderPhrases();
+                    renderPagination();
+                });
+                pagination.appendChild(button);
+            }
+            
+            function addPaginationEllipsis() {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'w-8 h-8 flex items-center justify-center';
+                ellipsis.textContent = '...';
+                pagination.appendChild(ellipsis);
+            }
+        }
+        
+        function renderAlphabet() {
+            const alphabetContainer = document.querySelector('#alphabet-tab .grid');
+            
+            alphabetData.forEach(item => {
+                const letterCard = document.createElement('div');
+                letterCard.className = 'letter-card bg-white rounded-lg shadow-sm p-3 text-center cursor-pointer hover:bg-indigo-50';
+                letterCard.innerHTML = `
+                    <div class="text-2xl font-bold text-indigo-600">${item.letter}</div>
+                    <div class="text-sm text-gray-600">${item.pronunciation}</div>
+                `;
+                
+                letterCard.addEventListener('click', () => {
+                    document.getElementById('selectedLetter').classList.remove('hidden');
+                    document.getElementById('bigLetter').textContent = item.letter;
+                    document.getElementById('letterPronunciation').textContent = item.pronunciation;
+                    
+                    // Generar visualización de pronunciación
+                    const visualContainer = document.getElementById('pronunciationVisual');
+                    visualContainer.innerHTML = '';
+                    
+                    const bars = 12;
+                    for (let i = 0; i < bars; i++) {
+                        const bar = document.createElement('span');
+                        const height = Math.random() * 20 + 5;
+                        const delay = i * 0.1;
+                        
+                        bar.style.left = `${i * 8}%`;
+                        bar.style.height = `${height}px`;
+                        bar.style.animationDelay = `${delay}s`;
+                        
+                        visualContainer.appendChild(bar);
+                    }
+                    
+                    // Mostrar ejemplos
+                    const examplesContainer = document.getElementById('letterExamples');
+                    examplesContainer.innerHTML = '';
+                    
+                    item.examples.forEach(example => {
+                        const exampleCard = document.createElement('div');
+                        exampleCard.className = 'bg-white rounded-lg shadow-sm p-3 text-center';
+                        exampleCard.innerHTML = `
+                            <div class="text-lg">${example}</div>
+                            <button class="mt-2 text-indigo-600 hover:text-indigo-800" data-text="${example}">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        `;
+                        
+                        examplesContainer.appendChild(exampleCard);
+                        
+                        // Evento para pronunciar el ejemplo
+                        exampleCard.querySelector('button').addEventListener('click', (e) => {
+                            speakText(e.currentTarget.getAttribute('data-text'));
+                        });
+                    });
+                    
+                    // Evento para pronunciar la letra
+                    document.getElementById('pronounceLetterBtn').addEventListener('click', () => {
+                        speakText(item.letter);
+                    });
+                });
+                
+                alphabetContainer.appendChild(letterCard);
+            });
+        }
+        
+        function renderCategoryPhrases(phrases) {
+            const container = document.getElementById('categoryPhrasesList');
+            container.innerHTML = '';
+            
+            phrases.forEach(phrase => {
+                const card = document.createElement('div');
+                card.className = `phrase-card bg-white rounded-lg shadow-md overflow-hidden animate-fade-in border-l-4 theme-${phrase.category}`;
+                
+                const isFavorite = favorites.includes(phrase.id);
+                const isLearned = learnedPhrases.includes(phrase.id);
+                
+                card.innerHTML = `
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold">${phrase.english}</h3>
+                            <button class="favorite-btn text-gray-400 hover:text-yellow-400 ${isFavorite ? 'active' : ''}" data-id="${phrase.id}">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-600 italic mb-2">${phrase.pronunciation}</p>
+                        <p class="text-gray-800 mb-3">${phrase.spanish}</p>
+                        <div class="flex items-center justify-between mt-3">
+                            <div>
+                                <button class="speak-btn px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none mr-2" data-text="${phrase.english}">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button class="show-image-btn px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none" data-keywords="${phrase.keywords.join(',')}">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                            </div>
+                            <button class="learned-btn px-3 py-1 ${isLearned ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'} rounded-md hover:bg-green-200 focus:outline-none" data-id="${phrase.id}">
+                                ${isLearned ? '<i class="fas fa-check mr-1"></i>Aprendida' : 'Marcar como aprendida'}
+                            </button>
+                        </div>
+                        <div class="image-container mt-3 hidden rounded-md overflow-hidden"></div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+                
+                // Agregar eventos a los botones
+                const favoriteBtn = card.querySelector('.favorite-btn');
+                favoriteBtn.addEventListener('click', () => toggleFavorite(phrase.id, favoriteBtn));
+                
+                const speakBtn = card.querySelector('.speak-btn');
+                speakBtn.addEventListener('click', () => speakText(speakBtn.getAttribute('data-text')));
+                
+                const showImageBtn = card.querySelector('.show-image-btn');
+                showImageBtn.addEventListener('click', () => showImage(showImageBtn, card.querySelector('.image-container')));
+                
+                const learnedBtn = card.querySelector('.learned-btn');
+                learnedBtn.addEventListener('click', () => toggleLearned(phrase.id, learnedBtn));
+            });
+        }
+        
+        function renderCurrentFlashcard() {
+            if (currentFlashcards.length === 0) return;
+            
+            const flashcard = currentFlashcards[currentFlashcardIndex];
+            
+            document.getElementById('flashcardEnglish').textContent = flashcard.english;
+            document.getElementById('flashcardPronunciation').textContent = flashcard.pronunciation;
+            document.getElementById('flashcardSpanish').textContent = flashcard.spanish;
+            document.getElementById('flashcardCounter').textContent = `Tarjeta ${currentFlashcardIndex + 1} de ${currentFlashcards.length}`;
+            
+            // Cargar imagen para la tarjeta
+            loadFlashcardImage(flashcard.keywords);
+        }
+        
+        // Funciones auxiliares
+        function toggleFavorite(id, button) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+                button.classList.remove('active');
+            } else {
+                favorites.push(id);
+                button.classList.add('active');
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateProgressCounts();
+        }
+        
+        function toggleLearned(id, button) {
+            if (learnedPhrases.includes(id)) {
+                learnedPhrases = learnedPhrases.filter(learnedId => learnedId !== id);
+                button.classList.remove('bg-green-100', 'text-green-800');
+                button.classList.add('bg-gray-200', 'text-gray-700');
+                button.innerHTML = 'Marcar como aprendida';
+            } else {
+                learnedPhrases.push(id);
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                button.classList.add('bg-green-100', 'text-green-800');
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Aprendida';
+            }
+            
+            localStorage.setItem('learnedPhrases', JSON.stringify(learnedPhrases));
+            updateProgressCounts();
+        }
+        
+        function updateProgressCounts() {
+            document.getElementById('learnedCount').textContent = learnedPhrases.length;
+            document.getElementById('favoriteCount').textContent = favorites.length;
+            
+            const progressPercent = Math.round((learnedPhrases.length / phrasesData.length) * 100);
+            document.getElementById('progressPercent').textContent = `${progressPercent}%`;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+        }
+        
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function showImage(button, container) {
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                container.innerHTML = '<div class="flex justify-center items-center p-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>';
+                
+                const keywords = button.getAttribute('data-keywords').split(',');
+                const searchTerm = keywords.slice(0, 2).join(' ');
+                
+                // Usar Unsplash API o Pexels para cargar imágenes
+                // Este es un placeholder - en una implementación real se usaría la API
+                setTimeout(() => {
+                    const imageUrl = `https://source.unsplash.com/300x200/?${encodeURIComponent(searchTerm)}`;
+                    container.innerHTML = `<img src="${imageUrl}" alt="${searchTerm}" class="w-full h-auto rounded-md">`;
+                }, 1000);
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+        
+        function loadFlashcardImage(keywords) {
+            const imageContainer = document.getElementById('flashcardImage');
+            imageContainer.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>';
+            
+            const searchTerm = keywords.slice(0, 2).join(' ');
+            
+            // Simular carga de imagen
+            setTimeout(() => {
+                const imageUrl = `https://source.unsplash.com/400x200/?${encodeURIComponent(searchTerm)}`;
+                imageContainer.style.backgroundImage = `url(${imageUrl})`;
+                imageContainer.innerHTML = '';
+            }, 1000);
+        }
+        
+        function getCategoryName(category) {
+            const categories = {
+                'greetings': 'Saludos',
+                'travel': 'Viajes',
+                'food': 'Comida',
+                'work': 'Trabajo',
+                'shopping': 'Compras',
+                'health': 'Salud',
+                'everyday': 'Cotidiano',
+                'emotions': 'Emociones',
+                'questions': 'Preguntas',
+                'emergencies': 'Emergencias'
+            };
+            
+            return categories[category] || 'Categoría desconocida';
+        }
+    </script>
+</body>
+</html>
